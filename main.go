@@ -32,12 +32,16 @@ func outputResult(imt float64) {
 	fmt.Print(result)
 }
 
+// Альтернативный синтаксис возвращаемое значение (IMT float64)
 // Функция для вычисления ИМТ возвращает результат с типом float64
-func calculateIMT(userKg float64, userHeight float64) float64 {
+func calculateIMT(userKg float64, userHeight float64) (IMT float64) {
 	const IMTPower = 2 // Константа для возведения в степень
 
-	IMT := userKg / math.Pow(userHeight/100, IMTPower)
-	return IMT
+	// В альтернативном синтаксисе используется оператор =
+	// = обозначает присваивание значения существующей переменной
+	IMT = userKg / math.Pow(userHeight/100, IMTPower)
+	// В альтернативном синтаксисе не указывается имя переменной в return
+	return
 }
 
 // Функция с двумя возвращаемыми параметрами (float64, float64)
