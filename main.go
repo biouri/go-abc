@@ -24,15 +24,30 @@ func main() {
 	// Функция для вывода результата
 	outputResult(IMT)
 
-	if IMT < 16 {
+	/*
+		if IMT < 16 {
+			fmt.Println("У вас сильный дефицит массы тела")
+		} else if IMT < 18.5 {
+			fmt.Println("У вас дефицит массы тела")
+		} else if IMT < 25 {
+			fmt.Println("У вас нормальный вес")
+		} else if IMT < 30 {
+			fmt.Println("У вас избыточный вес")
+		} else {
+			fmt.Println("У вас степень ожирения")
+		}
+	*/
+
+	switch {
+	case IMT < 16:
 		fmt.Println("У вас сильный дефицит массы тела")
-	} else if IMT < 18.5 {
+	case IMT < 18.5:
 		fmt.Println("У вас дефицит массы тела")
-	} else if IMT < 25 {
+	case IMT < 25:
 		fmt.Println("У вас нормальный вес")
-	} else if IMT < 30 {
+	case IMT < 30:
 		fmt.Println("У вас избыточный вес")
-	} else {
+	default:
 		fmt.Println("У вас степень ожирения")
 	}
 }
