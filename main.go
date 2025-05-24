@@ -23,13 +23,25 @@ func main() {
 
 	// Функция для вывода результата
 	outputResult(IMT)
+
+	if IMT < 16 {
+		fmt.Println("У вас сильный дефицит массы тела")
+	} else if IMT < 18.5 {
+		fmt.Println("У вас дефицит массы тела")
+	} else if IMT < 25 {
+		fmt.Println("У вас нормальный вес")
+	} else if IMT < 30 {
+		fmt.Println("У вас избыточный вес")
+	} else {
+		fmt.Println("У вас степень ожирения")
+	}
 }
 
 func outputResult(imt float64) {
 	// Тело функции
 	// Sprintf - создание строки с форматированием
 	result := fmt.Sprintf("Ваш индекс массы тела (ИМТ): %.2f", imt)
-	fmt.Print(result)
+	fmt.Println(result)
 }
 
 // Альтернативный синтаксис возвращаемое значение (IMT float64)
