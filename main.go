@@ -31,15 +31,42 @@ func main() {
 Калькулятор индекса массы тела
 ------------------------------
 `)
-	// Функция getUserInput() возвращает два параметра
-	userKg, userHeight := getUserInput()
+	// Бесконечный цикл (с выходом по условию)
+	for {
+		// Функция getUserInput() возвращает два параметра
+		userKg, userHeight := getUserInput()
 
-	// Используем функцию для вычисления ИМТ
-	IMT := calculateIMT(userKg, userHeight)
+		// Используем функцию для вычисления ИМТ
+		IMT := calculateIMT(userKg, userHeight)
 
-	// Функция для вывода результата
-	outputResult(IMT)
+		// Функция для вывода результата
+		outputResult(IMT)
 
+		isRepeateCalculation := checkRepeatCalculation()
+		// Завершение цикла при условии !isRepeateCalculation
+		if !isRepeateCalculation {
+			break
+		}
+	}
+}
+
+func outputResult(imt float64) {
+	// Тело функции
+	// Sprintf - создание строки с форматированием
+	result := fmt.Sprintf("Ваш индекс массы тела (ИМТ): %.2f", imt)
+	fmt.Println(result)
+	switch {
+	case imt < 16:
+		fmt.Println("У вас сильный дефицит массы тела")
+	case imt < 18.5:
+		fmt.Println("У вас дефицит массы тела")
+	case imt < 25:
+		fmt.Println("У вас нормальный вес")
+	case imt < 30:
+		fmt.Println("У вас избыточный вес")
+	default:
+		fmt.Println("У вас степень ожирения")
+	}
 	/*
 		if IMT < 16 {
 			fmt.Println("У вас сильный дефицит массы тела")
@@ -53,26 +80,6 @@ func main() {
 			fmt.Println("У вас степень ожирения")
 		}
 	*/
-
-	switch {
-	case IMT < 16:
-		fmt.Println("У вас сильный дефицит массы тела")
-	case IMT < 18.5:
-		fmt.Println("У вас дефицит массы тела")
-	case IMT < 25:
-		fmt.Println("У вас нормальный вес")
-	case IMT < 30:
-		fmt.Println("У вас избыточный вес")
-	default:
-		fmt.Println("У вас степень ожирения")
-	}
-}
-
-func outputResult(imt float64) {
-	// Тело функции
-	// Sprintf - создание строки с форматированием
-	result := fmt.Sprintf("Ваш индекс массы тела (ИМТ): %.2f", imt)
-	fmt.Println(result)
 }
 
 // Альтернативный синтаксис возвращаемое значение (IMT float64)
@@ -102,4 +109,14 @@ func getUserInput() (float64, float64) {
 
 	// Возврат из функции двух параметров
 	return userKg, userHeight
+}
+
+func checkRepeatCalculation() bool {
+	var userChoise string
+	fmt.Print("Вы хотите сделать ещё расчёт (y/n): ")
+	fmt.Scan(&userChoise)
+	if userChoise == "y" || userChoise == "Y" {
+		return true
+	}
+	return false
 }
