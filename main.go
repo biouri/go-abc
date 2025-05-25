@@ -3,6 +3,7 @@ package main
 
 // Импорт нескольких пакетов
 import (
+	"errors"
 	"fmt"
 	"math"
 )
@@ -36,8 +37,20 @@ func main() {
 		// Функция getUserInput() возвращает два параметра
 		userKg, userHeight := getUserInput()
 
+		// Если ошибку необходимо проигнорировать, используем _
+		// IMT, _ := calculateIMT(userKg, userHeight)
+
 		// Используем функцию для вычисления ИМТ
-		IMT := calculateIMT(userKg, userHeight)
+		IMT, err := calculateIMT(userKg, userHeight)
+
+		// err == nil означает отсутствие ошибки
+		// err != nil есть ошибка
+		if err != nil {
+			// Блок обработки ошибки
+			fmt.Println(err.Error())
+			fmt.Println("Не заданы параментры для расчёта")
+			continue // Повторить ввод
+		}
 
 		// Функция для вывода результата
 		outputResult(IMT)
@@ -82,16 +95,23 @@ func outputResult(imt float64) {
 	*/
 }
 
-// Альтернативный синтаксис возвращаемое значение (IMT float64)
-// Функция для вычисления ИМТ возвращает результат с типом float64
-func calculateIMT(userKg float64, userHeight float64) (IMT float64) {
+// При альтернативном синтаксисе возвращаемое значение (IMT float64)
+// Функция для вычисления ИМТ возвращает результат float64 и ошибку
+func calculateIMT(userKg float64, userHeight float64) (float64, error) {
 	const IMTPower = 2 // Константа для возведения в степень
+
+	// Проверка корректности данных, должны быть положительные значения
+	if userKg <= 0 || userHeight <= 0 {
+		// Возвращает 0 и ошибку
+		return 0, errors.New("PARAMS_ERROR")
+	}
 
 	// В альтернативном синтаксисе используется оператор =
 	// = обозначает присваивание значения существующей переменной
-	IMT = userKg / math.Pow(userHeight/100, IMTPower)
-	// В альтернативном синтаксисе не указывается имя переменной в return
-	return
+	// При обычном синтаксисе := создание переменной с присваиванием
+	IMT := userKg / math.Pow(userHeight/100, IMTPower)
+	// Возврат результата и отсутствие ошибки
+	return IMT, nil
 }
 
 // Функция с двумя возвращаемыми параметрами (float64, float64)
