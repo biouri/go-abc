@@ -57,4 +57,15 @@ func main() {
 
 	fmt.Println(len(transactionsPartial), cap(transactionsPartial))       // 4 5
 	fmt.Println(len(transactionsNewPartial), cap(transactionsNewPartial)) // 4 5
+
+	// Динамическим может быть только slice
+	// slice не имеет фиксированной длины изначально
+	// Под капотом создается массив на который ссылается slice
+	transactionSlice := []int{0, 20, 35}
+	temp := transactionSlice
+	// append() нельзя использовать для array, но можно использовать для slice
+	transactionSlice = append(transactionSlice, 100) // append возвращает новый slice
+
+	fmt.Println(temp)                 // [0 20 35] temp ссылается на другой массив
+	fmt.Println(transactionSlice[1:]) // [20 35 100] новй slice без 0-го элемента
 }
