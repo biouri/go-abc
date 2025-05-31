@@ -20,21 +20,6 @@ import "fmt"
 type bookmarkMap = map[string]string
 
 func main() {
-	// m := bookmarkMap{} // Рекомендуется для маленьких map
-	// Раннее выделение памяти при помощи make(map, hint)
-	// make(map, hint) — полезен для оптимизации, если известен примерный размер
-	// hint — это не лимит, а подсказка для раннего выделения памяти
-	// Без hint map всё равно работает, но может медленнее заполняться
-	m := make(bookmarkMap, 3) // Создаёт map с hint=3
-	// Для map можно получить только длину, cap для map не работает
-	fmt.Println(len(m)) // Длина 0
-	m["A"] = "1"
-	fmt.Println(len(m)) // Длина 1
-	m["B"] = "2"
-	fmt.Println(len(m)) // Длина 2
-	m["C"] = "3"
-	fmt.Println(len(m)) // Длина 3
-
 	// Пустой map для закладок
 	// Использование Type Alias bookmarkMap вместо:
 	// bookmarks := map[string]string{}
@@ -49,9 +34,9 @@ Menu: // Обозначение цикла как Menu: (Label для завер
 		case 1:
 			printBookmarks(bookmarks)
 		case 2:
-			bookmarks = addBookmark(bookmarks)
+			addBookmark(bookmarks)
 		case 3:
-			bookmarks = deleteBookmark(bookmarks)
+			deleteBookmark(bookmarks)
 		case 4:
 			break Menu // Завершение приложения
 			// break Switch // Завершение switch без выхода из приложения
@@ -83,7 +68,7 @@ func printBookmarks(bookmarks bookmarkMap) {
 
 // Использование Type Alias bookmarkMap вместо:
 // func addBookmark(bookmarks map[string]string) map[string]string
-func addBookmark(bookmarks bookmarkMap) bookmarkMap {
+func addBookmark(bookmarks bookmarkMap) {
 	var newBookmarkKey string
 	var newBookmarkValue string
 	fmt.Print("Введите название: ")
@@ -91,15 +76,15 @@ func addBookmark(bookmarks bookmarkMap) bookmarkMap {
 	fmt.Print("Введите ссылку: ")
 	fmt.Scan(&newBookmarkValue)
 	bookmarks[newBookmarkKey] = newBookmarkValue
-	return bookmarks
+	// return bookmarks // не обязательно т.к. это ссылочный тип
 }
 
 // Использование Type Alias bookmarkMap вместо:
 // func deleteBookmark(bookmarks map[string]string) map[string]string
-func deleteBookmark(bookmarks bookmarkMap) bookmarkMap {
+func deleteBookmark(bookmarks bookmarkMap) {
 	var bookmarkKeyToDelete string
 	fmt.Print("Введите название: ")
 	fmt.Scan(&bookmarkKeyToDelete)
 	delete(bookmarks, bookmarkKeyToDelete)
-	return bookmarks
+	// return bookmarks // не обязательно т.к. это ссылочный тип
 }
