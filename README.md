@@ -49,6 +49,7 @@
 7.3. Итерация по Map
 7.4. Утилита закладок
 7.5. Labels
+7.6. Type Alias
 
 ## Git
 
@@ -97,6 +98,7 @@ git commit -m "Add for Loop on Arrays + Calculate Balance Sum Example"
 git commit -m "Add Make Memory Allocation for Arrays + Principle of Capacity"
 git commit -m "Add Map: Change / Insert / Delete Map Elements, Map Iteration"
 git commit -m "Add Bookmark Utility with switch Menu + Labels"
+git commit -m "Add Type Alias: type BookmarkMap = map[string]string"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -3334,3 +3336,118 @@ Menu: // Обозначение цикла как Menu: (Label для завер
 ### Случаи Вложенности
 
 Если в программе есть вложенные циклы, можно использовать разные лейблы для точного контроля выхода из определённых блоков кода.
+
+## 7.6. Type Alias
+
+- Type Alias предназначен для оптимизации/упрощения кода за счет уменьшения повторений сложных конструкций, таких как `map[string]string`.
+- В приложении многократно используется конструкция `map[string]string` в различных частях кода, что ухудшает читабельность и усложняет поддержку.
+- Использование Type Alias позволяет создавать новые типы (алиасы), которые являются ссылкой на уже существующие типы.
+
+### Применение
+
+1. Определяем Type Alias на верхнем уровне кода для упрощения доступа и повторного использования, например: `type BookmarkMap = map[string]string`
+2. Используем объявленный алиас (`BookmarkMap`) вместо исходной конструкции для повышения читабельности и упрощения рефакторинга.
+
+### Преимущества использования Type Alias
+
+1. Читабельность:
+   Код становится проще для понимания, так как типы могут быть названы более понятно и бизнес-ориентировано, например, `BookmarkMap` вместо технической конструкции.
+2. Переиспользование:
+   Простое объявление и использование сложных типов в разных частях приложения без необходимости копировать их определение.
+3. Упрощение поддержки:
+   Изменения типа в одном месте автоматически применяются ко всему коду, использующему данный алиас.
+4. Навигация и исследование кода:
+   В IDE (интегрированные среды разработки) предоставляются удобные средства для навигации к определениям алиасов и понимания их структуры.
+
+```Go
+package main
+
+import "fmt"
+
+/*
+Приложение сначала выдаёт меню:
+- 1. Посмотреть закладки
+- 2. Добавить закладку
+- 3. Удалить закладку
+- 4. Выход
+
+При 1 - Выводит закладки
+При 2 - 2 поля ввода названия и адреса и после добавление
+При 3 - Ввод названия и удаление по нему
+При 4 - Завершение
+*/
+
+// Объявления типов доступны на верхнем уровне
+// В IDE VSCode Ctrl или Command позволяют просмотреть определение type
+type bookmarkMap = map[string]string
+
+func main() {
+	// Пустой map для закладок
+	// Использование Type Alias bookmarkMap вместо:
+	// bookmarks := map[string]string{}
+	bookmarks := bookmarkMap{}
+	fmt.Println("Приложение для закладок")
+
+Menu: // Обозначение цикла как Menu: (Label для завершения приложения)
+	for {
+		variant := getMenu()
+		// Switch:
+		switch variant {
+		case 1:
+			printBookmarks(bookmarks)
+		case 2:
+			bookmarks = addBookmark(bookmarks)
+		case 3:
+			bookmarks = deleteBookmark(bookmarks)
+		case 4:
+			break Menu // Завершение приложения
+			// break Switch // Завершение switch без выхода из приложения
+		}
+	}
+}
+
+func getMenu() int {
+	var variant int
+	fmt.Println("Выберите вариант")
+	fmt.Println("1. Посмотреть закладки")
+	fmt.Println("2. Добавить закладку")
+	fmt.Println("3. Удалить закладку")
+	fmt.Println("4. Выход")
+	fmt.Scan(&variant)
+	return variant
+}
+
+// Использование Type Alias bookmarkMap вместо:
+// func printBookmarks(bookmarks map[string]string)
+func printBookmarks(bookmarks bookmarkMap) {
+	if len(bookmarks) == 0 {
+		fmt.Println("Пока нет закладок")
+	}
+	for key, value := range bookmarks {
+		fmt.Println(key, ": ", value)
+	}
+}
+
+// Использование Type Alias bookmarkMap вместо:
+// func addBookmark(bookmarks map[string]string) map[string]string
+func addBookmark(bookmarks bookmarkMap) bookmarkMap {
+	var newBookmarkKey string
+	var newBookmarkValue string
+	fmt.Print("Введите название: ")
+	fmt.Scan(&newBookmarkKey)
+	fmt.Print("Введите ссылку: ")
+	fmt.Scan(&newBookmarkValue)
+	bookmarks[newBookmarkKey] = newBookmarkValue
+	return bookmarks
+}
+
+// Использование Type Alias bookmarkMap вместо:
+// func deleteBookmark(bookmarks map[string]string) map[string]string
+func deleteBookmark(bookmarks bookmarkMap) bookmarkMap {
+	var bookmarkKeyToDelete string
+	fmt.Print("Введите название: ")
+	fmt.Scan(&bookmarkKeyToDelete)
+	delete(bookmarks, bookmarkKeyToDelete)
+	return bookmarks
+}
+```
