@@ -20,6 +20,21 @@ import "fmt"
 type bookmarkMap = map[string]string
 
 func main() {
+	// m := bookmarkMap{} // Рекомендуется для маленьких map
+	// Раннее выделение памяти при помощи make(map, hint)
+	// make(map, hint) — полезен для оптимизации, если известен примерный размер
+	// hint — это не лимит, а подсказка для раннего выделения памяти
+	// Без hint map всё равно работает, но может медленнее заполняться
+	m := make(bookmarkMap, 3) // Создаёт map с hint=3
+	// Для map можно получить только длину, cap для map не работает
+	fmt.Println(len(m)) // Длина 0
+	m["A"] = "1"
+	fmt.Println(len(m)) // Длина 1
+	m["B"] = "2"
+	fmt.Println(len(m)) // Длина 2
+	m["C"] = "3"
+	fmt.Println(len(m)) // Длина 3
+
 	// Пустой map для закладок
 	// Использование Type Alias bookmarkMap вместо:
 	// bookmarks := map[string]string{}
