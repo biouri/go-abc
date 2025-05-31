@@ -47,6 +47,8 @@
 7.1. Map
 7.2. Изменение Map
 7.3. Итерация по Map
+7.4. Утилита закладок
+7.5. Labels
 
 ## Git
 
@@ -94,6 +96,7 @@ git commit -m "Add Unpack ..."
 git commit -m "Add for Loop on Arrays + Calculate Balance Sum Example"
 git commit -m "Add Make Memory Allocation for Arrays + Principle of Capacity"
 git commit -m "Add Map: Change / Insert / Delete Map Elements, Map Iteration"
+git commit -m "Add Bookmark Utility with switch Menu + Labels"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -3158,3 +3161,176 @@ for key, value := range mapVariable {
 
 Где `mapVariable` - это переменная Map.
 `key, value` - обеспечивают доступ к текущему ключу и значению при каждой итерации.
+
+## 7.4. Утилита закладок
+
+Утилита для управления закладками, не сохраняющая данные локально, а сохраняющая их только в памяти.
+
+Создаие каталога `go-bookmarks` и инициализация приложения:
+
+```shell
+mkdir go-bookmarks
+cd go-bookmarks
+go mod init demo/app-bookmarks
+```
+
+### Пример приложения, которое сначала выдаёт меню:
+
+1. Посмотреть закладки
+2. Добавить закладку
+3. Удалить закладку
+4. Выход
+
+При 1 - Выводит закладки
+При 2 - 2 поля ввода названия и адреса и после добавление
+При 3 - Ввод названия и удаление по нему
+При 4 - Завершение приложения
+
+### Шаги Создания Утилиты:
+
+1. Подготовка интерфейса пользователя:
+
+- При запуске приложения выводить меню с возможностями.
+- Использовать бесконечный цикл для возврата к меню после каждого действия.
+- Реализация функции получения выбора пользователя.
+
+2. Работа с закладками:
+
+- Для хранения закладок используем `map[string]string`, ключ - название закладки, значение - адрес.
+- Функция для вывода всех закладок с учетом пустого списка.
+- Добавление новой закладки с вводом пользователя (название и адрес).
+- Функция удаления закладки по названию.
+- Вывод сообщения при пустом списке закладок.
+
+3. Цикл обработки действий пользователя:
+
+- Использование `switch` для обработки выбора пользователя.
+- Определение и реализация функций для каждого действия (просмотр, добавление, удаление).
+- Завершение работы приложения при выборе соответствующего пункта.
+
+4. Тестирование приложения:
+
+- Прогон различных сценариев использования приложения (просмотр, добавление, удаление, проверка на пустоту).
+- Выход из приложения по break (не работает).
+
+```Go
+package main
+
+import "fmt"
+
+/*
+Приложение сначала выдаёт меню:
+- 1. Посмотреть закладки
+- 2. Добавить закладку
+- 3. Удалить закладку
+- 4. Выход
+
+При 1 - Выводит закладки
+При 2 - 2 поля ввода названия и адреса и после добавление
+При 3 - Ввод названия и удаление по нему
+При 4 - Завершение
+*/
+
+func main() {
+	// Пустой map для закладок
+	bookmarks := map[string]string{}
+	fmt.Println("Приложение для закладок")
+	for {
+		variant := getMenu()
+		switch variant {
+		case 1:
+			printBookmarks(bookmarks)
+		case 2:
+			bookmarks = addBookmark(bookmarks)
+		case 3:
+			bookmarks = deleteBookmark(bookmarks)
+		case 4:
+			break // Выход не работает
+		}
+	}
+}
+
+func getMenu() int {
+	var variant int
+	fmt.Println("Выберите вариант")
+	fmt.Println("1. Посмотреть закладки")
+	fmt.Println("2. Добавить закладку")
+	fmt.Println("3. Удалить закладку")
+	fmt.Println("4. Выход")
+	fmt.Scan(&variant)
+	return variant
+}
+
+func printBookmarks(bookmarks map[string]string) {
+	if len(bookmarks) == 0 {
+		fmt.Println("Пока нет закладок")
+	}
+	for key, value := range bookmarks {
+		fmt.Println(key, ": ", value)
+	}
+}
+
+func addBookmark(bookmarks map[string]string) map[string]string {
+	var newBookmarkKey string
+	var newBookmarkValue string
+	fmt.Print("Введите название: ")
+	fmt.Scan(&newBookmarkKey)
+	fmt.Print("Введите ссылку: ")
+	fmt.Scan(&newBookmarkValue)
+	bookmarks[newBookmarkKey] = newBookmarkValue
+	return bookmarks
+}
+
+func deleteBookmark(bookmarks map[string]string) map[string]string {
+	var bookmarkKeyToDelete string
+	fmt.Print("Введите название: ")
+	fmt.Scan(&bookmarkKeyToDelete)
+	delete(bookmarks, bookmarkKeyToDelete)
+	return bookmarks
+}
+```
+
+## 7.5. Labels
+
+- Лейблы обозначают циклы или блоки кода, позволяя точно указать, из какой части кода следует выйти.
+- Синтаксис: имя лейбла, за которым следует двоеточие, располагается непосредственно перед объявлением цикла или `switch`.
+- Labels решают проблему управления выходом из определённых блоков кода (например, циклов или условий).
+
+### Почему Важны Брейки
+
+`break` позволяет заранее выйти из блока кода (например, `case` в `switch`), что полезно для предотвращения дальнейшего выполнения кода при определённых условиях.
+
+### Примеры Использования Labels
+
+1. Обозначение Цикла как Меню
+
+- Лейбл: `Menu:`
+- Использование: при вызове `break Menu;`, выполнение выйдет из цикла, обозначенного как `Menu`.
+
+2. Обозначение `switch` Структуры
+
+- Лейбл `Switch`: может быть присвоено имя лейбла для `switch`.
+- Использование: `break Switch;` прервёт выполнение данного `switch` блока.
+
+```Go
+Menu: // Обозначение цикла как Menu: (Label для завершения приложения)
+	for {
+		variant := getMenu()
+  Switch: // Этот Label можно использовать для выхода из switch
+		switch variant {
+		case 1:
+			printBookmarks(bookmarks)
+		case 2:
+			bookmarks = addBookmark(bookmarks)
+		case 3:
+			bookmarks = deleteBookmark(bookmarks)
+		case 4:
+			break Menu // Завершение приложения
+      // break Switch // Завершение switch без выхода из приложения
+		}
+	}
+```
+
+### Случаи Вложенности
+
+Если в программе есть вложенные циклы, можно использовать разные лейблы для точного контроля выхода из определённых блоков кода.
