@@ -2,6 +2,12 @@ package main
 
 import "fmt"
 
+type account struct {
+	login    string
+	password string
+	url      string
+}
+
 func main() {
 	a := 5
 	// var pointerA *int - это указатель на переменную int
@@ -14,6 +20,38 @@ func main() {
 	m := [4]int{1, 2, 3, 4}
 	reverseOK(&m) // Меняет порядок элементов на обратный
 	fmt.Println(m)
+
+	// Запрос данных пользователя
+	login := promptData("Введите логин: ")
+	password := promptData("Введите пароль: ")
+	url := promptData("Введите URL: ")
+
+	// Моковая функция для вывода данных пользователя
+	outputPassword(login, password, url)
+
+	// Рекомендуемый (основной) сопособ создания экземпляра структуры
+	// Порядок может быть любой, можно часть значений не определять
+	// Не заданные значения будут иметь значения по умолчанию
+	account2 := account{
+		password: password,
+		url:      url,
+		login:    login,
+	}
+
+	// Альтернативный способ объявления переменной для структуры
+	// В данном случае важен порядок следования значений структуры
+	// В этом примере нарушен порядок, первым должен быть login
+	// Поле login будет иметь значение переменной password
+	account1 := account{
+		password,
+		"", // Не определенные значения нужно указывать явно
+		url,
+	}
+
+	// Создание пустой структуры для последующего заполнения через методы
+	account3 := account{}
+
+	fmt.Println(account1, account2, account3)
 }
 
 // Функция double принимает ссылку на int и ничего не возвращает
@@ -45,4 +83,17 @@ func reverseOK(arr *[4]int) {
 		arr[i], arr[j] = arr[j], arr[i]
 		fmt.Println("Swapped", i, "and", j, ":", *arr)
 	}
+}
+
+// Ввод данных с консоли
+func promptData(prompt string) string {
+	fmt.Print(prompt)
+	var res string
+	fmt.Scan(&res)
+	return res
+}
+
+// Моковая функция для вывода данных пользователя
+func outputPassword(login, password, url string) {
+	fmt.Println(login, password, url)
 }
