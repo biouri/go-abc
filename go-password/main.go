@@ -22,17 +22,14 @@ func main() {
 	fmt.Println(m)
 
 	// Запрос данных пользователя
-	login := promptData("Введите логин: ")
-	password := promptData("Введите пароль: ")
-	url := promptData("Введите URL: ")
-
-	// Моковая функция для вывода данных пользователя
-	outputPassword(login, password, url)
+	login := promptData("Введите логин")
+	password := promptData("Введите пароль")
+	url := promptData("Введите URL")
 
 	// Рекомендуемый (основной) сопособ создания экземпляра структуры
 	// Порядок может быть любой, можно часть значений не определять
 	// Не заданные значения будут иметь значения по умолчанию
-	account2 := account{
+	myAccount := account{
 		password: password,
 		url:      url,
 		login:    login,
@@ -49,9 +46,12 @@ func main() {
 	}
 
 	// Создание пустой структуры для последующего заполнения через методы
-	account3 := account{}
+	account2 := account{}
 
-	fmt.Println(account1, account2, account3)
+	fmt.Println(myAccount, account1, account2)
+
+	// Моковая функция для вывода данных пользователя (входной параметр - структура)
+	outputPassword(myAccount)
 }
 
 // Функция double принимает ссылку на int и ничего не возвращает
@@ -87,13 +87,14 @@ func reverseOK(arr *[4]int) {
 
 // Ввод данных с консоли
 func promptData(prompt string) string {
-	fmt.Print(prompt)
+	fmt.Print(prompt + ": ")
 	var res string
 	fmt.Scan(&res)
 	return res
 }
 
 // Моковая функция для вывода данных пользователя
-func outputPassword(login, password, url string) {
-	fmt.Println(login, password, url)
+func outputPassword(acc account) {
+	fmt.Println(acc)
+	fmt.Println(acc.login, acc.password, acc.url)
 }

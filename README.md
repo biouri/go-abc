@@ -59,6 +59,7 @@
 9.1. Зачем нужны Struct
 9.2. Описание struct
 9.3. Создание инстанса
+9.4. Передача структур
 
 ## Git
 
@@ -114,6 +115,7 @@ git commit -m "Add Pointer + Project go-password"
 git commit -m "Add Using the Function with a Pointer"
 git commit -m "Add Example of Array Reverse"
 git commit -m "Add Struct + Instance Create + Null values + Empty Structures"
+git commit -m "Add Transferring Structure to Function"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -4188,4 +4190,63 @@ type account struct {
 ```Go
 	// Создание пустой структуры для последующего заполнения через методы
 	account3 := account{}
+```
+
+## 9.4. Передача структур
+
+Структуры – это способ сгруппировать переменные различных типов под одним названием.
+Функции могут принимать структуры в качестве аргументов и возвращать их.
+
+### Пример
+
+1. Модификация функции для работы со структурами:
+
+Изменение функции `OutputPassword` для приема аргумента типа структура, вместо отдельных элементов.
+
+```Go
+// Моковая функция для вывода данных пользователя (предыдуший вариант без структуры)
+func outputPassword(login, password, url string) {
+	fmt.Println(login, password, url)
+}
+```
+
+Новый вариант функции `outputPassword` с входным параметром "структура"
+
+```Go
+// Моковая функция для вывода данных пользователя (входной параметр - структура)
+func outputPassword(acc account) {
+	fmt.Println(acc.login, acc.password, acc.url)
+}
+```
+
+2. Работа со структурой:
+
+Объявление структуры `account` с полями логин, пароль и URL.
+Создание экземпляра структуры `myAccount` и заполнение его данными.
+Передача структуры `myAccount` в функцию `outputPassword` для вывода данных.
+
+```Go
+myAccount := account{
+	password: password,
+	url:      url,
+	login:    login,
+}
+```
+
+3. Вывод данных:
+
+Доступ к полям структуры осуществляется через оператор точка (например, `acc.login`).
+Функция `outputPassword` изменена для обращения к полям переданной структуры и их вывода.
+Помимо вывода отдельных полей, пример показывает возможность вывода всей структуры сразу.
+
+```Go
+// Моковая функция для вывода данных пользователя (входной параметр - структура)
+func outputPassword(acc account) {
+	fmt.Println(acc.login, acc.password, acc.url)
+}
+
+// Использование функции для вывода данных пользователя (входной параметр - структура)
+outputPassword(myAccount) // User Password user.com
+
+fmt.Println(myAccount) // {User Password user.com}
 ```
