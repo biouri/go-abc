@@ -50,8 +50,9 @@ func main() {
 
 	fmt.Println(myAccount, account1, account2)
 
-	// Моковая функция для вывода данных пользователя (входной параметр - структура)
-	outputPassword(myAccount)
+	// Моковая функция для вывода данных пользователя
+	// Входной параметр - указатель на структуру
+	outputPassword(&myAccount)
 }
 
 // Функция double принимает ссылку на int и ничего не возвращает
@@ -94,7 +95,10 @@ func promptData(prompt string) string {
 }
 
 // Моковая функция для вывода данных пользователя
-func outputPassword(acc account) {
-	fmt.Println(acc)
-	fmt.Println(acc.login, acc.password, acc.url)
+func outputPassword(acc *account) {
+	fmt.Println(acc)                              // &{Login Password URL.com}
+	fmt.Println(acc.login, acc.password, acc.url) // Login Password URL.com
+	// Запись тождественна т.к. dereference выполняется для структур автоматически
+	// Неявный dereference - получение значения по адресу в памяти
+	fmt.Println((*acc).login, (*acc).password, (*acc).url) // Login Password URL.com
 }
