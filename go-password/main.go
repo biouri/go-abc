@@ -9,6 +9,16 @@ type account struct {
 }
 
 func main() {
+	str := []rune("Привет! 😊")
+	for _, ch := range string(str) {
+		fmt.Println(ch, string(ch))
+	}
+
+	str2 := "Привет! 😊"
+	for _, ch := range str2 {
+		fmt.Println(ch, string(ch))
+	}
+
 	a := 5
 	// var pointerA *int - это указатель на переменную int
 	pointerA := &a // Создание указателя на переменную a
