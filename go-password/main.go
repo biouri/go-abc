@@ -1,12 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand/v2"
+)
 
 type account struct {
 	login    string
 	password string
 	url      string
 }
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
 
 func main() {
 	str := []rune("Привет! 😊")
@@ -30,6 +35,16 @@ func main() {
 	m := [4]int{1, 2, 3, 4}
 	reverseOK(&m) // Меняет порядок элементов на обратный
 	fmt.Println(m)
+
+	// Генерация случайного числа от 0 до 9
+	// IntN(n int) int
+	// IntN returns, as an int, a pseudo-random number
+	// in the half-open interval [0,n) from the default Source.
+	// It panics if n <= 0.
+	fmt.Println(rand.IntN(10))
+
+	// Генерация случайного пароля из 12 символов
+	fmt.Println(generatePassword(12))
 
 	// Запрос данных пользователя
 	login := promptData("Введите логин")
@@ -111,4 +126,16 @@ func outputPassword(acc *account) {
 	// Запись тождественна т.к. dereference выполняется для структур автоматически
 	// Неявный dereference - получение значения по адресу в памяти
 	fmt.Println((*acc).login, (*acc).password, (*acc).url) // Login Password URL.com
+}
+
+// Генератор строки из n случайных символов
+func generatePassword(n int) string {
+	// Slice определенной длины n
+	res := make([]rune, n)
+	for i := range res {
+		// Берем случайный элемент из массива допустимых символов
+		res[i] = letterRunes[rand.IntN(len(letterRunes))]
+	}
+	// Преобразование результата в строку
+	return string(res)
 }
