@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
+	"net/url"
 )
 
 type account struct {
@@ -28,13 +30,25 @@ func (acc *account) generatePassword(n int) {
 	acc.password = string(res)
 }
 
-func newAccount(login, password, url string) *account {
+// Сигнатура функции-конструктора без валидации
+// func newAccount(login, password, url string) *account
+// Функция-конструктор с валидацией
+func newAccount(login, password, urlString string) (*account, error) {
 	// Перед возвратом структуры можно выполнить валидацию
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		// Собственная ошибка создается если нужно показать пользователю
+		// новое сообщение на понятном родном языке, также можно
+		// добавить оригинальное сообщение об ошибке
+		myErr := "Неверный URL " + err.Error()
+		return nil, errors.New(myErr)
+	}
+	// Возвращаем созданный account без ошибки (nil)
 	return &account{
-		url:      url,
+		url:      urlString,
 		login:    login,
 		password: password,
-	}
+	}, nil
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
@@ -87,7 +101,12 @@ func main() {
 	// }
 
 	// Использование функции-конструктора для создания структуры
-	myAccount := newAccount(login, password, url)
+	// Функция-конструктор newAccount валидирует данные и может генерировать ошибку
+	myAccount, err := newAccount(login, password, url)
+	if err != nil {
+		fmt.Println("Неверный формат URL: " + err.Error())
+		return
+	}
 
 	// Альтернативный способ объявления переменной для структуры
 	// В данном случае важен порядок следования значений структуры
