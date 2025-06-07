@@ -33,22 +33,36 @@ func (acc *account) generatePassword(n int) {
 // Сигнатура функции-конструктора без валидации
 // func newAccount(login, password, url string) *account
 // Функция-конструктор с валидацией
+// 1. Если логина нет, ошибка
+// 2. Если нет пароля, выполняем автогенерацию пароля
 func newAccount(login, password, urlString string) (*account, error) {
+	if login == "" {
+		// В Go принято, что строки ошибок:
+		// Начинаются со строчной буквы (кроме имён собственных или аббревиатур)
+		// Не заканчиваются точкой (т.к. ошибки часто оборачиваются в другие сообщения)
+		loginErr := "неверный Login "
+		return nil, errors.New(loginErr)
+	}
 	// Перед возвратом структуры можно выполнить валидацию
 	_, err := url.ParseRequestURI(urlString)
 	if err != nil {
 		// Собственная ошибка создается если нужно показать пользователю
 		// новое сообщение на понятном родном языке, также можно
 		// добавить оригинальное сообщение об ошибке
-		myErr := "Неверный URL " + err.Error()
-		return nil, errors.New(myErr)
+		// Строчная буква, без точки
+		urlErr := "неверный URL " + err.Error()
+		return nil, errors.New(urlErr)
 	}
-	// Возвращаем созданный account без ошибки (nil)
-	return &account{
+	newAcc := &account{
 		url:      urlString,
 		login:    login,
 		password: password,
-	}, nil
+	}
+	if password == "" {
+		newAcc.generatePassword(12)
+	}
+	// Возвращаем созданный account без ошибки (nil)
+	return newAcc, nil
 }
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
@@ -87,6 +101,8 @@ func main() {
 	fmt.Println(generatePassword(12))
 
 	// Запрос данных пользователя
+	// login := ""
+	// password := ""
 	login := promptData("Введите логин")
 	password := promptData("Введите пароль")
 	url := promptData("Введите URL")
@@ -99,14 +115,6 @@ func main() {
 	// 	url:      url,
 	// 	login:    login,
 	// }
-
-	// Использование функции-конструктора для создания структуры
-	// Функция-конструктор newAccount валидирует данные и может генерировать ошибку
-	myAccount, err := newAccount(login, password, url)
-	if err != nil {
-		fmt.Println("Неверный формат URL: " + err.Error())
-		return
-	}
 
 	// Альтернативный способ объявления переменной для структуры
 	// В данном случае важен порядок следования значений структуры
@@ -121,13 +129,21 @@ func main() {
 	// Создание пустой структуры для последующего заполнения через методы
 	account2 := account{}
 
-	// До изменения пароля myAccount
-	fmt.Println(myAccount, account1, account2)
-	// Метод для вывода данных пользователя
-	myAccount.outputPassword()
+	fmt.Println(account1, account2)
+
+	// Использование функции-конструктора для создания структуры
+	// Функция-конструктор newAccount валидирует данные и может генерировать ошибку
+	// Пароль будет сгенерирован только при отсутствии
+	myAccount, err := newAccount(login, password, url)
+	if err != nil {
+		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
+		return
+	}
 
 	// Метод для генерации и изменения пароля пользователя
-	myAccount.generatePassword(12)
+	// Теперь интегрирован в Функцию-конструктор
+	// myAccount.generatePassword(12)
+
 	// Метод для вывода данных пользователя
 	myAccount.outputPassword()
 }
@@ -167,7 +183,7 @@ func reverseOK(arr *[4]int) {
 func promptData(prompt string) string {
 	fmt.Print(prompt + ": ")
 	var res string
-	fmt.Scan(&res)
+	fmt.Scanln(&res) // Позволяет ввести пустую строку
 	return res
 }
 
