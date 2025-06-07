@@ -11,6 +11,23 @@ type account struct {
 	url      string
 }
 
+// Метод структуры account для вывода данных пользователя
+// В этом методе не создается копия acc account т.к. используется указатель
+func (acc *account) outputPassword() {
+	fmt.Println(acc)                              // &{Login Password URL.com}
+	fmt.Println(acc.login, acc.password, acc.url) // Login Password URL.com
+}
+
+// Метод структуры account для генерации и изменения пароля
+// Мутирует исходную структуру
+func (acc *account) generatePassword(n int) {
+	res := make([]rune, n)
+	for i := range res {
+		res[i] = letterRunes[rand.IntN(len(letterRunes))]
+	}
+	acc.password = string(res)
+}
+
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
 
 func main() {
@@ -43,7 +60,7 @@ func main() {
 	// It panics if n <= 0.
 	fmt.Println(rand.IntN(10))
 
-	// Генерация случайного пароля из 12 символов
+	// Функция - Генерации случайного пароля из 12 символов
 	fmt.Println(generatePassword(12))
 
 	// Запрос данных пользователя
@@ -73,11 +90,15 @@ func main() {
 	// Создание пустой структуры для последующего заполнения через методы
 	account2 := account{}
 
+	// До изменения пароля myAccount
 	fmt.Println(myAccount, account1, account2)
+	// Метод для вывода данных пользователя
+	myAccount.outputPassword()
 
-	// Моковая функция для вывода данных пользователя
-	// Входной параметр - указатель на структуру
-	outputPassword(&myAccount)
+	// Метод для генерации и изменения пароля пользователя
+	myAccount.generatePassword(12)
+	// Метод для вывода данных пользователя
+	myAccount.outputPassword()
 }
 
 // Функция double принимает ссылку на int и ничего не возвращает
@@ -119,16 +140,7 @@ func promptData(prompt string) string {
 	return res
 }
 
-// Моковая функция для вывода данных пользователя
-func outputPassword(acc *account) {
-	fmt.Println(acc)                              // &{Login Password URL.com}
-	fmt.Println(acc.login, acc.password, acc.url) // Login Password URL.com
-	// Запись тождественна т.к. dereference выполняется для структур автоматически
-	// Неявный dereference - получение значения по адресу в памяти
-	fmt.Println((*acc).login, (*acc).password, (*acc).url) // Login Password URL.com
-}
-
-// Генератор строки из n случайных символов
+// Функция - Генератор строки из n случайных символов
 func generatePassword(n int) string {
 	// Slice определенной длины n
 	res := make([]rune, n)
