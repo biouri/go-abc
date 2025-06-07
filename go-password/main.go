@@ -28,6 +28,15 @@ func (acc *account) generatePassword(n int) {
 	acc.password = string(res)
 }
 
+func newAccount(login, password, url string) *account {
+	// Перед возвратом структуры можно выполнить валидацию
+	return &account{
+		url:      url,
+		login:    login,
+		password: password,
+	}
+}
+
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
 
 func main() {
@@ -71,11 +80,14 @@ func main() {
 	// Рекомендуемый (основной) сопособ создания экземпляра структуры
 	// Порядок может быть любой, можно часть значений не определять
 	// Не заданные значения будут иметь значения по умолчанию
-	myAccount := account{
-		password: password,
-		url:      url,
-		login:    login,
-	}
+	// myAccount := account{
+	// 	password: password,
+	// 	url:      url,
+	// 	login:    login,
+	// }
+
+	// Использование функции-конструктора для создания структуры
+	myAccount := newAccount(login, password, url)
 
 	// Альтернативный способ объявления переменной для структуры
 	// В данном случае важен порядок следования значений структуры
