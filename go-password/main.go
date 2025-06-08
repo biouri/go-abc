@@ -5,12 +5,24 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+	"time"
 )
 
 type account struct {
 	login    string
 	password string
 	url      string
+}
+
+type accountWithTimeStamp struct {
+	createdAt time.Time // Запись с явно-именованным полем
+	updatedAt time.Time // Запись с явно-именованным полем
+	// Внутреннее поле account (используется встраивание)
+	// Короткая запись
+	// Встраивание - аналог наследования
+	account
+	// Запись с явно-именованным полем
+	// acc account
 }
 
 // Метод структуры account для вывода данных пользователя
@@ -28,6 +40,32 @@ func (acc *account) generatePassword(n int) {
 		res[i] = letterRunes[rand.IntN(len(letterRunes))]
 	}
 	acc.password = string(res)
+}
+
+func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
+	if login == "" {
+		loginErr := "неверный Login "
+		return nil, errors.New(loginErr)
+	}
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		urlErr := "неверный URL " + err.Error()
+		return nil, errors.New(urlErr)
+	}
+	newAcc := &accountWithTimeStamp{
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
+		// Внутреннее поле account (используется встраивание)
+		account: account{
+			url:      urlString,
+			login:    login,
+			password: password,
+		},
+	}
+	if password == "" {
+		newAcc.generatePassword(12)
+	}
+	return newAcc, nil
 }
 
 // Сигнатура функции-конструктора без валидации
@@ -131,10 +169,19 @@ func main() {
 
 	fmt.Println(account1, account2)
 
+	myAccount1, err := newAccount(login, password, url)
+	if err != nil {
+		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
+		return
+	}
+
+	// Метод для вывода данных пользователя
+	myAccount1.outputPassword()
+
 	// Использование функции-конструктора для создания структуры
 	// Функция-конструктор newAccount валидирует данные и может генерировать ошибку
 	// Пароль будет сгенерирован только при отсутствии
-	myAccount, err := newAccount(login, password, url)
+	myAccount, err := newAccountWithTimeStamp(login, password, url)
 	if err != nil {
 		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
 		return
@@ -146,6 +193,17 @@ func main() {
 
 	// Метод для вывода данных пользователя
 	myAccount.outputPassword()
+
+	// Поля с типом time.Time также являются структурами
+	// &{{13981831876230078340 20863322501 0x50f880} {13981831876230078340 20863322501 0x50f880} {Login Password http://url.com}}
+	fmt.Println(myAccount)
+	// Доступ к явно-именованным полям
+	fmt.Println(myAccount.createdAt) // 2025-06-08 12:05:56.2925118 +0300 MSK m=+15.578619301
+	fmt.Println(myAccount.updatedAt) // 2025-06-08 12:05:56.2925118 +0300 MSK m=+15.578619301
+
+	// Возможно обращение к внутренним полям account структуры двумя способами
+	fmt.Println(myAccount.login)
+	fmt.Println(myAccount.account.login)
 }
 
 // Функция double принимает ссылку на int и ничего не возвращает

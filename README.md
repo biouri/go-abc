@@ -68,6 +68,7 @@
 9.10. Функция constructor
 9.11. Валидация данных
 9.12. Перенос генерации пароля
+9.13. Композиция
 
 ## Git
 
@@ -131,6 +132,7 @@ git commit -m "Add Methods to Structure + Pointers and Mutation of Structures"
 git commit -m "Add Constructor Function"
 git commit -m "Add Data Validation"
 git commit -m "Modify Password Generation"
+git commit -m "Add Composition"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -4950,3 +4952,119 @@ func main () {
 
 Введен пустой логин: возвращается ошибка "неверный логин".
 Введен логин, но не введен пароль: автоматически генерируется пароль.
+
+## 9.13. Композиция
+
+В Go Композиция является аналогом Наследования
+
+### Объектно-ориентированное программирование (ООП):
+
+Определение: Подход, при котором программы разрабатываются как совокупность объектов, представляющих собой экземпляры классов.
+Пример: Аккаунт - упрощённое представление реального объекта в коде (например, пользователь сайта).
+
+### Наследование:
+
+Пример с зоопарком: Описать различных животных, у которых есть общие черты (например, структура "Животное"), которые затем расширяются специфическими свойствами (например, крокодил с методом "кусаться").
+
+### Композиция в Go:
+
+- Обзор: В языке Go наследования в традиционном смысле нет, вместо этого используется композиция.
+- Пример с аккаунтом: Добавление временных меток создания и обновления к базовому аккаунту через композицию.
+
+### Работа с композицией:
+
+1. Создание структуры с дополнительными полями (например, время создания и обновления), избегая дублирования.
+2. Встраивание одной структуры в другую: Таким образом, можно создать аккаунт с добавленными метками времени.
+
+При наведении мыши в IDE можно увидеть описание
+
+```Go
+type accountWithTimeStamp struct { // size=96 (0x60)
+    createdAt time.Time
+    updatedAt time.Time
+    account
+}
+// Embedded fields:
+login    string // through account
+password string // through account
+url      string // through account
+func (acc *account) generatePassword(n int)
+func (acc *account) outputPassword()
+```
+
+3. Применение композиции: Позволяет расширять функционал без необходимости дублирования кода.
+
+```Go
+import (
+	...
+	"time"
+)
+
+type account struct {
+	login    string
+	password string
+	url      string
+}
+
+type accountWithTimeStamp struct {
+	// Поля с типом time.Time также являются структурами
+	createdAt time.Time
+	updatedAt time.Time
+	// Внутреннее поле account (используется встраивание)
+	// Короткая запись
+	// Встраивание - аналог наследования
+	account
+	// Запись с явно-именованным полем
+	// acc account
+}
+```
+
+### Практика использования:
+
+Создание нового конструктора для аккаунта с временными метками.
+Пример использования в функции `main`, демонстрирующий преимущества композиции.
+
+```Go
+func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
+	if login == "" {
+		loginErr := "неверный Login "
+		return nil, errors.New(loginErr)
+	}
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		urlErr := "неверный URL " + err.Error()
+		return nil, errors.New(urlErr)
+	}
+	newAcc := &accountWithTimeStamp{
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
+		// Внутреннее поле account (используется встраивание)
+		account: account{
+			url:      urlString,
+			login:    login,
+			password: password,
+		},
+	}
+	if password == "" {
+		newAcc.generatePassword(12)
+	}
+	return newAcc, nil
+}
+
+func main() {
+	...
+	myAccount, err := newAccountWithTimeStamp(login, password, url)
+	if err != nil {
+		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
+		return
+	}
+
+	// Доступ к явно-именованным полям
+	fmt.Println(myAccount.createdAt) // 2025-06-08 12:05:56.2925118 +0300 MSK m=+15.578619301
+	fmt.Println(myAccount.updatedAt) // 2025-06-08 12:05:56.2925118 +0300 MSK m=+15.578619301
+
+	// Возможно обращение к внутренним полям account структуры двумя способами
+	fmt.Println(myAccount.login)
+	fmt.Println(myAccount.account.login)
+}
+```
