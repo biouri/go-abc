@@ -69,6 +69,7 @@
 9.11. Валидация данных
 9.12. Перенос генерации пароля
 9.13. Композиция
+10.1. Разделение кода
 
 ## Git
 
@@ -133,6 +134,7 @@ git commit -m "Add Constructor Function"
 git commit -m "Add Data Validation"
 git commit -m "Modify Password Generation"
 git commit -m "Add Composition"
+git commit -m "Splits the Code into Different Files: account.go + main.go"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -5068,3 +5070,155 @@ func main() {
 	fmt.Println(myAccount.account.login)
 }
 ```
+
+## 10.1. Разделение кода
+
+- Проблема: Накопление большого количества кода в одном файле.
+- Сложности: Разрастание кода делает его управление и работу с ним неудобной.
+- Решение: Декомпозиция кода на пакеты.
+
+### Пример для разделения кода:
+
+Структура аккаунта и генерация пароля находятся в одном файле, что затрудняет управление. Необходимо разделение кода.
+
+### Шаги решения:
+
+1. Создание нового файла `account.go` для работы с аккаунтом.
+2. Перенос функционала, связанного с аккаунтом, в `account.go`.
+3. Объявление пакета в `account.go` как часть пакета `main`.
+
+### Работа с пакетами в Go:
+
+1. Структура файла Go:
+
+   - Обязательное объявление пакета в начале.
+   - Следующим шагом идут импорты.
+   - Затем размещение кода.
+
+2. Взаимодействие между файлами внутри пакета:
+
+   - Функции и типы доступны без префиксов, если они находятся в том же пакете.
+   - Отсутствует нужда в импорте между файлами одного пакета.
+
+account.go
+
+```Go
+package main
+
+import (
+	"errors"
+	"fmt"
+	"math/rand/v2"
+	"net/url"
+	"time"
+)
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
+
+type account struct {
+	login    string
+	password string
+	url      string
+}
+
+type accountWithTimeStamp struct {
+	createdAt time.Time // Запись с явно-именованным полем
+	updatedAt time.Time // Запись с явно-именованным полем
+	// Внутреннее поле account (используется встраивание)
+	// Короткая запись
+	// Встраивание - аналог наследования
+	account
+	// Запись с явно-именованным полем
+	// acc account
+}
+
+// Метод структуры account для вывода данных пользователя
+// В этом методе не создается копия acc account т.к. используется указатель
+func (acc *account) outputPassword() {
+	fmt.Println(acc)                              // &{Login Password URL.com}
+	fmt.Println(acc.login, acc.password, acc.url) // Login Password URL.com
+}
+
+// Метод структуры account для генерации и изменения пароля
+// Мутирует исходную структуру
+func (acc *account) generatePassword(n int) {
+	res := make([]rune, n)
+	for i := range res {
+		res[i] = letterRunes[rand.IntN(len(letterRunes))]
+	}
+	acc.password = string(res)
+}
+
+func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
+	if login == "" {
+		loginErr := "неверный Login "
+		return nil, errors.New(loginErr)
+	}
+	_, err := url.ParseRequestURI(urlString)
+	if err != nil {
+		urlErr := "неверный URL " + err.Error()
+		return nil, errors.New(urlErr)
+	}
+	newAcc := &accountWithTimeStamp{
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
+		// Внутреннее поле account (используется встраивание)
+		account: account{
+			url:      urlString,
+			login:    login,
+			password: password,
+		},
+	}
+	if password == "" {
+		newAcc.generatePassword(12)
+	}
+	return newAcc, nil
+}
+```
+
+main.go
+
+```Go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	// Запрос данных пользователя
+	login := promptData("Введите логин")
+	password := promptData("Введите пароль")
+	url := promptData("Введите URL")
+
+	myAccount, err := newAccountWithTimeStamp(login, password, url)
+	if err != nil {
+		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
+		return
+	}
+
+	// Метод для вывода данных пользователя
+	myAccount.outputPassword()
+}
+
+// Ввод данных с консоли
+func promptData(prompt string) string {
+	fmt.Print(prompt + ": ")
+	var res string
+	fmt.Scanln(&res) // Позволяет ввести пустую строку
+	return res
+}
+```
+
+### Запуск и сборка приложения:
+
+1. При проблеме с неопределенными ссылками:
+   Использование `go run .` для запуска всего проекта, а не отдельного файла.
+   В этом случае Go будет искать файл `main.go` в котором находится функция `main()` и затем исполнять ее.
+
+```shell
+go run .
+```
+
+2. Сборка проекта:
+   Команда `go build` создает исполняемый файл (например, `password`), который работает аналогично коду до разделения.
