@@ -1,6 +1,7 @@
 package main
 
 import (
+	"demo/app-password/account"
 	"fmt"
 )
 
@@ -10,32 +11,32 @@ func main() {
 	password := promptData("Введите пароль")
 	url := promptData("Введите URL")
 
-	// myAccount1 базовая версия account без TimeStamp
+	// myAccount1 базовая версия Account без TimeStamp
 	// Использование функции-конструктора для создания структуры
 	// Функция-конструктор валидирует данные и может генерировать ошибку
 	// Пароль будет сгенерирован только при отсутствии
-	myAccount1, err := newAccount(login, password, url)
+	myAccount1, err := account.NewAccount(login, password, url)
 	if err != nil {
 		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
 		return
 	}
 
 	// Метод для вывода данных пользователя
-	myAccount1.outputPassword()
+	myAccount1.OutputPassword()
 
-	// myAccount расширенная версия account с TimeStamp
-	myAccount, err := newAccountWithTimeStamp(login, password, url)
+	// myAccount расширенная версия Account с TimeStamp
+	myAccount, err := account.NewAccountWithTimeStamp(login, password, url)
 	if err != nil {
 		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
 		return
 	}
 
 	// Метод для вывода данных пользователя
-	myAccount.outputPassword()
+	myAccount.OutputPassword()
 
-	// Возможно обращение к внутренним полям account структуры двумя способами
-	fmt.Println(myAccount.login)
-	fmt.Println(myAccount.account.login)
+	// Не возможно обращение к внутренним полям Account структуры
+	// fmt.Println(myAccount.login)
+	// fmt.Println(myAccount.Account.login)
 }
 
 // Ввод данных с консоли

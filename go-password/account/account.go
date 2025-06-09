@@ -1,4 +1,4 @@
-package main
+package account
 
 import (
 	"errors"
@@ -10,33 +10,33 @@ import (
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
 
-type account struct {
+type Account struct {
 	login    string
 	password string
 	url      string
 }
 
-type accountWithTimeStamp struct {
+type AccountWithTimeStamp struct {
 	createdAt time.Time // Запись с явно-именованным полем
 	updatedAt time.Time // Запись с явно-именованным полем
-	// Внутреннее поле account (используется встраивание)
+	// Внутреннее поле Account (используется встраивание)
 	// Короткая запись
 	// Встраивание - аналог наследования
-	account
+	Account
 	// Запись с явно-именованным полем
-	// acc account
+	// Acc Account
 }
 
-// Метод структуры account для вывода данных пользователя
-// В этом методе не создается копия acc account т.к. используется указатель
-func (acc *account) outputPassword() {
+// Метод структуры Account для вывода данных пользователя
+// В этом методе не создается копия Acc Account т.к. используется указатель
+func (acc *Account) OutputPassword() {
 	fmt.Println(acc)                              // &{Login Password URL.com}
 	fmt.Println(acc.login, acc.password, acc.url) // Login Password URL.com
 }
 
-// Метод структуры account для генерации и изменения пароля
+// Метод структуры Account для генерации и изменения пароля
 // Мутирует исходную структуру
-func (acc *account) generatePassword(n int) {
+func (acc *Account) generatePassword(n int) {
 	res := make([]rune, n)
 	for i := range res {
 		res[i] = letterRunes[rand.IntN(len(letterRunes))]
@@ -44,7 +44,7 @@ func (acc *account) generatePassword(n int) {
 	acc.password = string(res)
 }
 
-func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
+func NewAccountWithTimeStamp(login, password, urlString string) (*AccountWithTimeStamp, error) {
 	if login == "" {
 		loginErr := "неверный Login "
 		return nil, errors.New(loginErr)
@@ -54,11 +54,11 @@ func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTim
 		urlErr := "неверный URL " + err.Error()
 		return nil, errors.New(urlErr)
 	}
-	newAcc := &accountWithTimeStamp{
+	newAcc := &AccountWithTimeStamp{
 		createdAt: time.Now(),
 		updatedAt: time.Now(),
 		// Внутреннее поле account (используется встраивание)
-		account: account{
+		Account: Account{
 			url:      urlString,
 			login:    login,
 			password: password,
@@ -71,11 +71,11 @@ func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTim
 }
 
 // Сигнатура функции-конструктора без валидации
-// func newAccount(login, password, url string) *account
+// func NewAccount(login, password, url string) *Account
 // Функция-конструктор с валидацией
 // 1. Если логина нет, ошибка
 // 2. Если нет пароля, выполняем автогенерацию пароля
-func newAccount(login, password, urlString string) (*account, error) {
+func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
 		// В Go принято, что строки ошибок:
 		// Начинаются со строчной буквы (кроме имён собственных или аббревиатур)
@@ -93,7 +93,7 @@ func newAccount(login, password, urlString string) (*account, error) {
 		urlErr := "неверный URL " + err.Error()
 		return nil, errors.New(urlErr)
 	}
-	newAcc := &account{
+	newAcc := &Account{
 		url:      urlString,
 		login:    login,
 		password: password,
@@ -101,6 +101,6 @@ func newAccount(login, password, urlString string) (*account, error) {
 	if password == "" {
 		newAcc.generatePassword(12)
 	}
-	// Возвращаем созданный account без ошибки (nil)
+	// Возвращаем созданный Account без ошибки (nil)
 	return newAcc, nil
 }
