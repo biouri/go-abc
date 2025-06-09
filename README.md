@@ -75,6 +75,7 @@
 10.4. Добавление сторонних пакетов
 10.5. Добавление Package для работы с файлами
 10.6. Go mod tidy
+11.1. Запись в файл
 
 ## Git
 
@@ -144,6 +145,7 @@ git commit -m "Add Package + Import and Export Public Functions and Structures"
 git commit -m "Adding Third Party Packages"
 git commit -m "Adding a Custom Package to Work with Files: files/files.go"
 git commit -m "Add go mod tidy"
+git commit -m "Add Writing to a File"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -5479,4 +5481,60 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 )
+```
+
+## 11.1. Запись в файл
+
+Работа с пакетом `os` для взаимодействия с файловой системой операционной системы.
+
+1. Подключение пакета `os`:
+   Импорт пакета `os` для работы с файловой системой.
+
+2. Создание функции записи в файл `WriteFile`
+
+   - Принимаемые параметры: контент (строка) и имя файла.
+   - Важно: запись паролей в файл без шифрования не рекомендуется.
+
+3. Создание файла с помощью функции `os.Create`
+
+   - Функция `Create` принимает имя файла и создает новый файл, возвращая указатель на файл и ошибку.
+   - Пример: `file, error := os.Create(name)`
+
+4. Обработка возможных ошибок при создании файла:
+   Проверка и вывод ошибок, если создать файл не удалось.
+
+`files\files.go`
+
+```Go
+// Публичная функция: Запись файла
+func WriteFile(content string, name string) {
+	fmt.Println("Запись файла")
+	file, err := os.Create(name) // (пере)Создание файла
+	if err != nil {
+		fmt.Println(err)
+		return // Выход в случае ошибки
+	}
+	// Возвращается len, err (кол-во записанных байт можно не пропустить)
+	_, err = file.WriteString(content)
+	if err != nil {
+		file.Close()
+		fmt.Println(err)
+		return // Выход в случае ошибки
+	}
+	fmt.Println("Запись успешна")
+	file.Close()
+}
+```
+
+5. Запись контента в файл
+
+   - Использование метода `WriteString` структуры файла для записи строки.
+   - Повторная проверка на ошибки при записи.
+   - Важно закрыть файл после записи с помощью `file.Close()`.
+
+```Go
+func main() {
+	files.WriteFile("Тестовый файл...", "file.txt")
+	...
+}
 ```

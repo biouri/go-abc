@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	files.WriteFile("Тестовый файл...", "file.txt")
+
 	// Запрос данных пользователя
 	login := promptData("Введите логин")
 	password := promptData("Введите пароль")
@@ -34,7 +36,6 @@ func main() {
 
 	// Метод для вывода данных пользователя
 	myAccount.OutputPassword()
-	files.WriteFile()
 	fmt.Println(myAccount)
 
 	// Не возможно обращение к внутренним полям Account структуры
