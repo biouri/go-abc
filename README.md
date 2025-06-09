@@ -73,6 +73,7 @@
 10.2. Добавление пакета
 10.3. Импорт и экспорт
 10.4. Добавление сторонних пакетов
+10.5. Добавление Package для работы с файлами
 
 ## Git
 
@@ -140,6 +141,7 @@ git commit -m "Add Composition"
 git commit -m "Splits the Code into Different Files: account.go + main.go"
 git commit -m "Add Package + Import and Export Public Functions and Structures"
 git commit -m "Adding Third Party Packages"
+git commit -m "Adding a Custom Package to Work with Files: files/files.go"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -5391,3 +5393,36 @@ func (acc *Account) OutputPassword() {
 	fmt.Println(acc.login, acc.password, acc.url)
 }
 ```
+
+## 10.5. Добавление Package для работы с файлами
+
+Создание собственного пакета для работы с файлами.
+
+Создание пакета files:
+
+Создание папки с названием "files" для пакета.
+Внутри папки "files" создается файл `files.go`. Этот файл будет относиться к новому пакету для работы с файлами.
+
+В `files.go` необходимо определить пакет с помощью `package files` и добавить две публичные функции.
+Параметры и реализация функций будут добавлены позже.
+
+`ReadFile()`: функция для чтения файла.
+`WriteFile()`: функция для записи в файл.
+
+`files\files.go`
+
+```Go
+package files
+
+func ReadFile() {
+
+}
+
+func WriteFile() {
+
+}
+```
+
+### Экспорт функций:
+
+Необходимо обратите внимание на именование функций с заглавной буквы, чтобы они были доступны вне пакета "files".

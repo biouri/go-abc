@@ -2,6 +2,7 @@ package main
 
 import (
 	"demo/app-password/account"
+	"demo/app-password/files"
 	"fmt"
 )
 
@@ -33,6 +34,8 @@ func main() {
 
 	// Метод для вывода данных пользователя
 	myAccount.OutputPassword()
+	files.WriteFile()
+	fmt.Println(myAccount)
 
 	// Не возможно обращение к внутренним полям Account структуры
 	// fmt.Println(myAccount.login)
