@@ -72,6 +72,7 @@
 10.1. Разделение кода
 10.2. Добавление пакета
 10.3. Импорт и экспорт
+10.4. Добавление сторонних пакетов
 
 ## Git
 
@@ -138,6 +139,7 @@ git commit -m "Modify Password Generation"
 git commit -m "Add Composition"
 git commit -m "Splits the Code into Different Files: account.go + main.go"
 git commit -m "Add Package + Import and Export Public Functions and Structures"
+git commit -m "Adding Third Party Packages"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -156,6 +158,7 @@ git config --global --add safe.directory D:/Projects/Go/goabc-demo-2
 
 https://go.dev/
 https://brew.sh/
+https://pkg.go.dev/
 https://pkg.go.dev/std
 https://pkg.go.dev/fmt
 
@@ -5297,3 +5300,94 @@ import (
 
 Мы преобразовали приложение в мультипакетную структуру, выделив публичные и приватные части.
 Экспортируя определённые функции и структуры, мы получаем гибкий доступ к ним снаружи, при этом скрывая внутреннюю логику и данные.
+
+## 10.4. Добавление сторонних пакетов
+
+Управление Зависимостями в Go, как управлять пакетами в Go, а также как добавлять в проекты сторонние зависимости для расширения функциональности. Как использовать внутренние и внешние библиотеки.
+
+https://pkg.go.dev/
+
+1. Разбиение приложения на пакеты
+   Важно структурировать приложения на пакеты.
+   Можно использовать пакеты в разных проектах и публиковать на GitHub.
+2. Использование сторонних пакетов
+   Пример задачи: цветной вывод текста в консоль.
+   Поиск и выбор подходящего пакета для работы с цветом в консоли (использование сайта `go.dev` или `Google`).
+
+3. Установка стороннего пакета
+   Примером является пакет `Color` для работы с ANSI eскейп-кодами.
+   Инструкция по установке пакета через `go get`.
+   https://pkg.go.dev/github.com/fatih/color
+
+```shell
+go get github.com/fatih/color
+```
+
+В результате будет изменен файл `go.mod` и добавится файл `go.sum` (если его еще нет в проекте).
+Пример измененного файла `go.mod` с дополнительной секцией `require`:
+
+```go
+module demo/app-1
+
+go 1.24.3
+
+require (
+	github.com/fatih/color v1.18.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+)
+```
+
+Можно вручную отредактировать файл `go.mod`, например изменить версию зависимости и затем выполнить обновление при помощи `go get`.
+
+4. Управление зависимостями
+   Система управления зависимостями в Go, отличие от Node.js.
+   Файлы `go.mod` и `go.sum` для определения и верификации зависимостей.
+
+Пример файла `go.sum` (система зависимостей Go имеет плоскую структуру, файл зависимостей содержит контрольные суммы):
+
+```Text
+github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
+github.com/fatih/color v1.18.0/go.mod h1:4FelSpRwEGDpQ12mAdzqdOukCy4u8WUtOY6lkT/6HfU=
+github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
+github.com/mattn/go-colorable v0.1.13/go.mod h1:7S9/ev0klgBDR4GtXTXX8a3vIGJpMovkB8vQcUbaXHg=
+github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/yFXSvRLM=
+github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
+github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
+golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.25.0 h1:r+8e+loiHxRqhXVl6ML1nO3l1+oFoWbnlu2Ehimmi34=
+golang.org/x/sys v0.25.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
+```
+
+5. Работа с зависимостями
+   Обновление и восстановление зависимостей через Visual Studio Code или `go get`.
+
+Восстановление зависимостей (например, на другом компьютере или при ручном редактировании версий)
+
+```shell
+go get
+```
+
+Важно включить в коммит `go.mod` и `go.sum`.
+
+6. Применение стороннего пакета
+   Импорт и использование пакета `Color` в приложении.
+   Работа пакета на примере вывода цветного текста в консоль.
+
+`go-password/account/account.go`
+
+```Go
+package account
+
+import (
+	...
+	"github.com/fatih/color"
+)
+...
+func (acc *Account) OutputPassword() {
+	color.Cyan(acc.login + " " + acc.password + " " + acc.url) // цвет: Cyan
+	fmt.Println(acc.login, acc.password, acc.url)
+}
+```

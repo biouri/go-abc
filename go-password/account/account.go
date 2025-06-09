@@ -6,6 +6,8 @@ import (
 	"math/rand/v2"
 	"net/url"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
@@ -30,8 +32,8 @@ type AccountWithTimeStamp struct {
 // Метод структуры Account для вывода данных пользователя
 // В этом методе не создается копия Acc Account т.к. используется указатель
 func (acc *Account) OutputPassword() {
-	fmt.Println(acc)                              // &{Login Password URL.com}
-	fmt.Println(acc.login, acc.password, acc.url) // Login Password URL.com
+	color.Cyan(acc.login + " " + acc.password + " " + acc.url) // цвет: Cyan
+	fmt.Println(acc.login, acc.password, acc.url)
 }
 
 // Метод структуры Account для генерации и изменения пароля
