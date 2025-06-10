@@ -18,13 +18,18 @@ func WriteFile(content string, name string) {
 		fmt.Println(err)
 		return // Выход в случае ошибки
 	}
+
+	// Предпочтительный способ закрытия файлов
+	// defer - отложить выполнение некоторых операций до момента очистки стек-фрейма
+	defer file.Close()
+
 	// Возвращается len, err (кол-во записанных байт можно не пропустить)
 	_, err = file.WriteString(content)
 	if err != nil {
-		file.Close()
+		// file.Close() // Лучше использовать: defer file.Close()
 		fmt.Println(err)
 		return // Выход в случае ошибки
 	}
 	fmt.Println("Запись успешна")
-	file.Close()
+	// file.Close() // Лучше использовать: defer file.Close()
 }
