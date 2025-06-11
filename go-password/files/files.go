@@ -6,8 +6,19 @@ import (
 )
 
 // Публичная функция: Чтение файла
-func ReadFile() {
+func ReadFile(filename string) {
 	fmt.Println("Чтение файла")
+	// file, err := os.Open(filename) // Побайтовое чтение (по порциям)
+	// ioutil.ReadFile(filename) // Deprecated старый нерекомендуемый
+
+	// os.ReadFile открыть и получить данные в виде массива байтов
+	data, err := os.ReadFile(filename) // Открыть и полностью прочитать
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(data)         // Массив байтов
+	fmt.Println(string(data)) // Преобразовать массив байтов в строку
 }
 
 // Публичная функция: Запись файла

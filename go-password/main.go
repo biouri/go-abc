@@ -8,6 +8,7 @@ import (
 
 func main() {
 	files.WriteFile("Тестовый файл...", "file.txt")
+	files.ReadFile("file.txt")
 
 	// Запрос данных пользователя
 	login := promptData("Введите логин")
