@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"net/url"
+	"reflect"
 	"time"
 
 	"github.com/fatih/color"
@@ -13,7 +14,9 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
 
 type Account struct {
-	login    string
+	// Добавлена метаинформация из какого поля структуры брать поле login
+	// Пример структурного тега для поля login
+	login    string `json:"login" xml:"test"`
 	password string
 	url      string
 }
@@ -66,6 +69,13 @@ func NewAccountWithTimeStamp(login, password, urlString string) (*AccountWithTim
 			password: password,
 		},
 	}
+
+	// Получить метатеги поля login в Runtime
+	// reflect библиотека позволяет работать с типами в Runtime
+	field, _ := reflect.TypeOf(newAcc).Elem().FieldByName("login")
+	// Получить метаинформацию о поле login
+	fmt.Println(string(field.Tag)) // json:"login" xml:"test"
+
 	if password == "" {
 		newAcc.generatePassword(12)
 	}
