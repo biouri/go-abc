@@ -7,41 +7,34 @@ import (
 )
 
 func main() {
-	files.WriteFile("Тестовый файл...", "file.txt")
 	files.ReadFile("file.txt")
 
+	createAccount()
+}
+
+func createAccount() {
 	// Запрос данных пользователя
 	login := promptData("Введите логин")
 	password := promptData("Введите пароль")
 	url := promptData("Введите URL")
 
-	// myAccount1 базовая версия Account без TimeStamp
-	// Использование функции-конструктора для создания структуры
-	// Функция-конструктор валидирует данные и может генерировать ошибку
-	// Пароль будет сгенерирован только при отсутствии
-	myAccount1, err := account.NewAccount(login, password, url)
+	myAccount, err := account.NewAccount(login, password, url)
 	if err != nil {
 		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
 		return
 	}
 
-	// Метод для вывода данных пользователя
-	myAccount1.OutputPassword()
-
-	// myAccount расширенная версия Account с TimeStamp
-	myAccount, err := account.NewAccountWithTimeStamp(login, password, url)
-	if err != nil {
-		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
-		return
-	}
-
-	// Метод для вывода данных пользователя
+	// Метод для вывода данных пользователя в консоль
 	myAccount.OutputPassword()
 	fmt.Println(myAccount)
 
-	// Не возможно обращение к внутренним полям Account структуры
-	// fmt.Println(myAccount.login)
-	// fmt.Println(myAccount.Account.login)
+	// Сохранение структуры в файл
+	file, err := myAccount.ToBytes()
+	if err != nil {
+		fmt.Println("Не удалось преобразовать в JSON")
+		return
+	}
+	files.WriteBytesToFile(file, "data.json")
 }
 
 // Ввод данных с консоли

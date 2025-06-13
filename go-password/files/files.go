@@ -22,7 +22,7 @@ func ReadFile(filename string) {
 }
 
 // Публичная функция: Запись файла
-func WriteFile(content string, name string) {
+func WriteBytesToFile(content []byte, name string) {
 	fmt.Println("Запись файла")
 	file, err := os.Create(name) // (пере)Создание файла
 	if err != nil {
@@ -35,7 +35,8 @@ func WriteFile(content string, name string) {
 	defer file.Close()
 
 	// Возвращается len, err (кол-во записанных байт можно не пропустить)
-	_, err = file.WriteString(content)
+	// Вместо WriteString используем Write
+	_, err = file.Write(content)
 	if err != nil {
 		// file.Close() // Лучше использовать: defer file.Close()
 		fmt.Println(err)

@@ -81,6 +81,7 @@
 11.4. Чтение из файла
 11.5. JSON
 11.6. Struct tags - Структурные Теги
+11.7. Сохранение JSON
 
 ## Git
 
@@ -154,6 +155,7 @@ git commit -m "Add Writing to a File"
 git commit -m "Add Stack Frame + defer"
 git commit -m "Add Reading from a File"
 git commit -m "Add JSON Struct tags"
+git commit -m "Add JSON Saving, Marshal + Unmarshal"
 ```
 
 Git с версии 2.35 начал проверять владельцев репозиториев, чтобы избежать атак с подменой контекста пользователя (например, если Git запускается под разными учетными записями или если репозиторий находится на общем диске).
@@ -5771,5 +5773,91 @@ func NewAccountWithTimeStamp(...) {
 	// Получить метаинформацию о поле login
 	fmt.Println(string(field.Tag)) // json:"login" xml:"test"
 	...
+}
+```
+
+## 11.7. Сохранение JSON
+
+Cохранение данных в формате JSON в Go на примере структуры аккаунта.
+
+### Обновление структуры аккаунта
+
+1. Упрощение структуры аккаунта: объединение `Account` с `AccountWithTimeStamp` и удаление лишних импортов.
+2. Использование `newAccount` для создания аккаунтов, оптимизация структуры для удобства.
+
+### Экспорт полей для работы с JSON
+
+1. Необходимо экспортировать поля структур, которые будут сохраняться в JSON, путем начала имен этих полей с заглавной буквы.
+2. Добавление структурных тегов JSON для правильного наименования полей при сохранении в JSON формате.
+
+`account.go`
+
+```Go
+type Account struct {
+	// Поля записываются с заглавной, чтобы экспортировались
+	// Добавлена метаинформация
+	// Пример структурных тегов для полей структуры: `json:"login"` ...
+	// имена записаны с маленькой буквы (соответствует стилю именования в JSON)
+	// Если не указать метаинформацию, будут использованы имена из структуры.
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	Url       string    `json:"url"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+```
+
+### Функции Marshal и Unmarshal
+
+1. Пакет `encoding/json` для преобразования структур Go в JSON и обратно.
+2. Использование функции `Marshal` для преобразования структур в байтовые массивы (`byte slice`) без сохранения отступов.
+
+`account.go`
+
+```Go
+// Метод преобразования Account в byte-массив
+// Имя метода ToBytes с заглавной т.к. он экспортируется
+// type byte = uint8 (byte является алиасом к типу uint8)
+func (acc *Account) ToBytes() ([]byte, error) {
+	// Аналогичная функция преобразования с отступами: json.MarshalIndent()
+	// Возвращается: массив_байтов file, ошибка err
+	file, err := json.Marshal(acc)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+```
+
+### Создание и сохранение аккаунта в JSON
+
+1. Реализация метода `CreateAccount` для создания и сохранения аккаунта.
+2. Преобразование экземпляра аккаунта в `byte slice` и последующее сохранение в файл `data.json`.
+3. Сохранение данных в JSON и проверка соответствия полей структурным тегам.
+
+```Go
+func createAccount() {
+	// Запрос данных пользователя
+	login := promptData("Введите логин")
+	password := promptData("Введите пароль")
+	url := promptData("Введите URL")
+
+	myAccount, err := account.NewAccount(login, password, url)
+	if err != nil {
+		fmt.Println("Неверный формат URL или LOGIN: " + err.Error())
+		return
+	}
+
+	// Метод для вывода данных пользователя в консоль
+	myAccount.OutputPassword()
+	fmt.Println(myAccount)
+
+	// Сохранение структуры в файл
+	file, err := myAccount.ToBytes()
+	if err != nil {
+		fmt.Println("Не удалось преобразовать в JSON")
+		return
+	}
+	files.WriteBytesToFile(file, "data.json")
 }
 ```

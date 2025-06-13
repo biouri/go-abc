@@ -1,6 +1,7 @@
 package account
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
@@ -14,29 +15,36 @@ import (
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-*!")
 
 type Account struct {
-	// Добавлена метаинформация из какого поля структуры брать поле login
-	// Пример структурного тега для поля login
-	login    string `json:"login" xml:"test"`
-	password string
-	url      string
-}
-
-type AccountWithTimeStamp struct {
-	createdAt time.Time // Запись с явно-именованным полем
-	updatedAt time.Time // Запись с явно-именованным полем
-	// Внутреннее поле Account (используется встраивание)
-	// Короткая запись
-	// Встраивание - аналог наследования
-	Account
-	// Запись с явно-именованным полем
-	// Acc Account
+	// Поля записываются с заглавной, чтобы экспортировались
+	// Добавлена метаинформация
+	// Пример структурных тегов для полей структуры: `json:"login"` ...
+	// имена записаны с маленькой буквы (соответствует стилю именования в JSON)
+	// Если не указать метаинформацию, будут использованы имена из структуры.
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	Url       string    `json:"url"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // Метод структуры Account для вывода данных пользователя
 // В этом методе не создается копия Acc Account т.к. используется указатель
 func (acc *Account) OutputPassword() {
-	color.Cyan(acc.login + " " + acc.password + " " + acc.url) // цвет: Cyan
-	fmt.Println(acc.login, acc.password, acc.url)
+	color.Cyan(acc.Login + " " + acc.Password + " " + acc.Url) // цвет: Cyan
+	fmt.Println(acc.Login, acc.Password, acc.Url)
+}
+
+// Метод преобразования Account в byte-массив
+// Имя метода ToBytes с заглавной т.к. он экспортируется
+// type byte = uint8 (byte является алиасом к типу uint8)
+func (acc *Account) ToBytes() ([]byte, error) {
+	// Аналогичная функция преобразования с отступами: json.MarshalIndent()
+	// Возвращается: массив_байтов file, ошибка err
+	file, err := json.Marshal(acc)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }
 
 // Метод структуры Account для генерации и изменения пароля
@@ -46,46 +54,11 @@ func (acc *Account) generatePassword(n int) {
 	for i := range res {
 		res[i] = letterRunes[rand.IntN(len(letterRunes))]
 	}
-	acc.password = string(res)
+	acc.Password = string(res)
 }
 
-func NewAccountWithTimeStamp(login, password, urlString string) (*AccountWithTimeStamp, error) {
-	if login == "" {
-		loginErr := "неверный Login "
-		return nil, errors.New(loginErr)
-	}
-	_, err := url.ParseRequestURI(urlString)
-	if err != nil {
-		urlErr := "неверный URL " + err.Error()
-		return nil, errors.New(urlErr)
-	}
-	newAcc := &AccountWithTimeStamp{
-		createdAt: time.Now(),
-		updatedAt: time.Now(),
-		// Внутреннее поле account (используется встраивание)
-		Account: Account{
-			url:      urlString,
-			login:    login,
-			password: password,
-		},
-	}
-
-	// Получить метатеги поля login в Runtime
-	// reflect библиотека позволяет работать с типами в Runtime
-	field, _ := reflect.TypeOf(newAcc).Elem().FieldByName("login")
-	// Получить метаинформацию о поле login
-	fmt.Println(string(field.Tag)) // json:"login" xml:"test"
-
-	if password == "" {
-		newAcc.generatePassword(12)
-	}
-	return newAcc, nil
-}
-
-// Сигнатура функции-конструктора без валидации
-// func NewAccount(login, password, url string) *Account
 // Функция-конструктор с валидацией
-// 1. Если логина нет, ошибка
+// 1. Если нет логина, ошибка
 // 2. Если нет пароля, выполняем автогенерацию пароля
 func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
@@ -106,10 +79,20 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 		return nil, errors.New(urlErr)
 	}
 	newAcc := &Account{
-		url:      urlString,
-		login:    login,
-		password: password,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Url:       urlString,
+		Login:     login,
+		Password:  password,
 	}
+
+	// Получить метатеги поля login в Runtime
+	// reflect библиотека позволяет работать с типами в Runtime
+	field, _ := reflect.TypeOf(newAcc).Elem().FieldByName("Login")
+	// Получить метаинформацию о поле login
+	fmt.Println("Meta Information")
+	fmt.Println(string(field.Tag)) // json:"login"
+
 	if password == "" {
 		newAcc.generatePassword(12)
 	}
